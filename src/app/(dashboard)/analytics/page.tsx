@@ -1,0 +1,242 @@
+'use client';
+
+import { useState } from 'react';
+import { useEnergyStore } from '@/hooks/useEnergyStore';
+import { AreaChart, BarChart } from '@tremor/react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { PeriodSelector } from '@/components/features/analytics/period-selector';
+import { format, isAfter, subDays, subMonths, subYears } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { Activity, BarChart3, CalendarRange } from 'lucide-react';
+
+type Period = 'day' | 'week' | 'month' | 'year';
+
+export default function AnalyticsPage() {
+  const { readings } = useEnergyStore();
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>('month');
+
+  const now = new Date();
+  const getStartDate = () => {
+    switch (selectedPeriod) {
+      case 'day':
+        return subDays(now, 7);
+      case 'week':
+        return subDays(now, 28);
+      case 'month':
+        return subMonths(now, 3);
+      case 'year':
+        return subYears(now, 1);
+    }
+  };
+
+  const startDate = getStartDate();
+  const filteredReadings = readings
+    .filter((r) => isAfter(new Date(r.timestamp), startDate))
+    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+  const consumptionData = filteredReadings.map((r, i, arr) => ({
+    date: format(new Date(r.timestamp), 'dd.MM.', { locale: de }),
+    Zählerstand: r.kwh,
+    Verbrauch: i > 0 ? r.kwh - arr[i - 1].kwh : 0,
+  }));
+
+  const weekdayData = [
+    { day: 'Mo', kwh: 8.2 },
+    { day: 'Di', kwh: 7.8 },
+    { day: 'Mi', kwh: 8.5 },
+    { day: 'Do', kwh: 9.1 },
+    { day: 'Fr', kwh: 8.0 },
+    { day: 'Sa', kwh: 10.2 },
+    { day: 'So', kwh: 11.5 },
+  ];
+
+  const hasData = filteredReadings.length > 0;
+  const totalConsumption = consumptionData.reduce((sum, item) => sum + item.Verbrauch, 0);
+  const averageConsumption = hasData ? totalConsumption / consumptionData.length : 0;
+  const strongestWeekday = weekdayData.reduce((max, day) => (day.kwh > max.kwh ? day : max));
+
+  return (
+    <div className="relative isolate space-y-6 overflow-hidden rounded-[36px] lg:space-y-8">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem] rounded-[36px] bg-[radial-gradient(circle_at_8%_10%,rgba(56,132,255,0.12),transparent_34%),radial-gradient(circle_at_88%_16%,rgba(40,190,160,0.11),transparent_30%)]" />
+      <Card variant="glass">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="text-text-secondary mb-4 inline-flex items-center gap-2 rounded-full border border-white/65 bg-white/60 px-3 py-1 text-xs font-semibold tracking-[0.24em] uppercase dark:border-white/10 dark:bg-white/8">
+              <Activity className="text-primary h-3.5 w-3.5" />
+              Analytics
+            </div>
+            <h1 className="text-text text-4xl font-semibold tracking-tight lg:text-5xl">Analyse</h1>
+            <p className="text-text-secondary mt-3 max-w-xl text-base sm:text-lg">
+              Zeiträume vergleichen, Verbrauchsmuster erkennen und die wichtigsten Trends schneller
+              lesen.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <PeriodSelector value={selectedPeriod} onChange={setSelectedPeriod} />
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid gap-5 md:grid-cols-3">
+        <div className="rounded-[28px] bg-white/68 p-5 shadow-sm dark:bg-white/8">
+          <div className="flex items-center gap-3">
+            <span className="bg-primary/10 text-primary flex h-11 w-11 items-center justify-center rounded-2xl">
+              <CalendarRange className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-text-secondary text-sm">Zeitraum</p>
+              <p className="text-text text-lg font-semibold">
+                {selectedPeriod === 'day'
+                  ? '7 Tage'
+                  : selectedPeriod === 'week'
+                    ? '4 Wochen'
+                    : selectedPeriod === 'month'
+                      ? '3 Monate'
+                      : '1 Jahr'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-[28px] bg-white/68 p-5 shadow-sm dark:bg-white/8">
+          <div className="flex items-center gap-3">
+            <span className="bg-primary/10 text-primary flex h-11 w-11 items-center justify-center rounded-2xl">
+              <Activity className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-text-secondary text-sm">Durchschnitt</p>
+              <p className="text-text text-lg font-semibold">{averageConsumption.toFixed(1)} kWh</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-[28px] bg-white/68 p-5 shadow-sm dark:bg-white/8">
+          <div className="flex items-center gap-3">
+            <span className="bg-primary/10 text-primary flex h-11 w-11 items-center justify-center rounded-2xl">
+              <BarChart3 className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-text-secondary text-sm">Datenpunkte</p>
+              <p className="text-text text-lg font-semibold">{filteredReadings.length}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
+        <Card className="overflow-hidden">
+          <CardHeader className="items-center">
+            <div>
+              <p className="text-text-secondary text-sm font-medium tracking-[0.2em] uppercase">
+                Verlauf
+              </p>
+              <CardTitle className="mt-2">Verbrauch über Zeit</CardTitle>
+            </div>
+            <span className="text-primary flex h-11 w-11 items-center justify-center rounded-2xl bg-white/70 shadow-sm dark:bg-white/10">
+              <Activity className="h-5 w-5" />
+            </span>
+          </CardHeader>
+
+          <CardContent>
+            {hasData ? (
+              <div className="space-y-5">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[22px] bg-white/62 px-4 py-4 shadow-sm dark:bg-white/8">
+                    <p className="text-text-secondary text-xs tracking-[0.16em] uppercase">
+                      Summe Zeitraum
+                    </p>
+                    <p className="text-text mt-2 text-lg font-semibold">
+                      {totalConsumption.toFixed(1)} kWh
+                    </p>
+                  </div>
+                  <div className="rounded-[22px] bg-white/62 px-4 py-4 shadow-sm dark:bg-white/8">
+                    <p className="text-text-secondary text-xs tracking-[0.16em] uppercase">
+                      Letzter Verbrauch
+                    </p>
+                    <p className="text-text mt-2 text-lg font-semibold">
+                      {consumptionData.at(-1)?.Verbrauch.toFixed(1) ?? '0.0'} kWh
+                    </p>
+                  </div>
+                  <div className="bg-primary rounded-[22px] px-4 py-4 text-white shadow-lg">
+                    <p className="text-xs tracking-[0.16em] text-white/72 uppercase">
+                      Höchster Ausschlag
+                    </p>
+                    <p className="mt-2 text-lg font-semibold">
+                      {Math.max(...consumptionData.map((item) => item.Verbrauch)).toFixed(1)} kWh
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
+                  <div className="from-primary/14 via-info/10 pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-br to-transparent" />
+                  <AreaChart
+                    className="[&_.recharts-cartesian-axis-tick-value]:font-size-[12px] [&_.recharts-curve.recharts-area-area]:fill-opacity-90 [&_.recharts-layer.recharts-area-dots_circle]:stroke-width-2 relative h-80 [&_.recharts-cartesian-axis-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)] [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_60%,transparent)] [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent [&_.recharts-default-legend]:!mt-2 [&_.recharts-layer.recharts-area-dots_circle]:fill-white [&_.recharts-layer.recharts-area-dots_circle]:stroke-[var(--color-primary)]"
+                    data={consumptionData}
+                    index="date"
+                    categories={['Verbrauch']}
+                    colors={['blue']}
+                    valueFormatter={(value) => `${value.toFixed(1)} kWh`}
+                    showLegend={true}
+                    showGridLines={true}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-[24px] bg-white/62 px-6 py-12 text-center shadow-sm dark:bg-white/8">
+                <div className="bg-primary/10 text-primary mx-auto flex h-14 w-14 items-center justify-center rounded-[20px]">
+                  <Activity className="h-6 w-6" />
+                </div>
+                <p className="text-text text-lg font-medium">
+                  Keine Daten für diesen Zeitraum vorhanden
+                </p>
+                <p className="text-text-secondary mt-2">
+                  Wechsle den Zeitraum oder erfasse weitere Zählerstände.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden">
+          <CardHeader className="items-center">
+            <div>
+              <p className="text-text-secondary text-sm font-medium tracking-[0.2em] uppercase">
+                Muster
+              </p>
+              <CardTitle className="mt-2">Durchschnitt pro Wochentag</CardTitle>
+            </div>
+            <span className="text-primary flex h-11 w-11 items-center justify-center rounded-2xl bg-white/70 shadow-sm dark:bg-white/10">
+              <BarChart3 className="h-5 w-5" />
+            </span>
+          </CardHeader>
+
+          <CardContent>
+            <div className="mb-5 rounded-[22px] bg-white/62 px-4 py-4 shadow-sm dark:bg-white/8">
+              <p className="text-text-secondary text-xs tracking-[0.16em] uppercase">
+                Höchster Wochentag
+              </p>
+              <p className="text-text mt-2 text-lg font-semibold">
+                {strongestWeekday.day} · {strongestWeekday.kwh.toFixed(1)} kWh
+              </p>
+            </div>
+
+            <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
+              <div className="from-secondary/12 via-primary/6 pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-br to-transparent" />
+              <BarChart
+                className="[&_.recharts-cartesian-axis-tick-value]:font-size-[12px] relative h-72 [&_.recharts-bar-rectangle]:opacity-95 [&_.recharts-cartesian-axis-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)] [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_58%,transparent)] [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent"
+                data={weekdayData}
+                index="day"
+                categories={['kwh']}
+                colors={['emerald']}
+                valueFormatter={(value) => `${value.toFixed(1)} kWh`}
+                showLegend={false}
+                showGridLines={true}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

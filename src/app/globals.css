@@ -1,0 +1,369 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   WattWise — Global Theme (Tailwind CSS v4, CSS-first config)
+   ============================================================ */
+
+@theme {
+  /* --- Brand Colors (Okabe-Ito CVD-safe palette) --- */
+  --color-primary: oklch(0.45 0.22 263); /* #0072B2  Deep Blue      — Electricity */
+  --color-secondary: oklch(0.72 0.19 142); /* #009E73  Teal-Green     — Solar/Efficient */
+  --color-efficient: oklch(0.72 0.19 142); /* #009E73  Green          — Efficient state */
+  --color-caution: oklch(0.73 0.19 76); /* #E69F00  Orange         — Caution/Gas */
+  --color-critical: oklch(0.56 0.25 29); /* #D55E00  Vermillion     — Critical/Heating */
+  --color-info: oklch(0.72 0.13 221); /* #56B4E9  Sky Blue       — Water/Info */
+  --color-accent: oklch(0.65 0.14 340); /* #CC79A7  Reddish-Purple — Other */
+
+  /* --- Semantic UI Colors (light mode defaults) --- */
+  --color-background: oklch(0.965 0.01 250);
+  --color-surface: oklch(0.98 0.008 255);
+  --color-surface-raised: oklch(0.995 0.006 255);
+  --color-border: oklch(0.9 0.01 255);
+  --color-text: oklch(0.15 0 0);
+  --color-text-secondary: oklch(0.45 0 0);
+  --color-text-disabled: oklch(0.65 0 0);
+  --color-panel-border: rgb(255 255 255 / 0.52);
+  --color-panel-glow: rgb(255 255 255 / 0.18);
+  --color-page-tint: oklch(0.94 0.03 245);
+
+  /* --- Typography --- */
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px — Mobile H1 */
+  --text-4xl: 2.25rem; /* 36px — Desktop H1 */
+  --text-5xl: 3rem; /* 48px — Large Numbers */
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* --- Spacing (8px grid) --- */
+  --spacing-1: 0.25rem; /*  4px */
+  --spacing-2: 0.5rem; /*  8px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-4: 1rem; /* 16px */
+  --spacing-5: 1.25rem; /* 20px */
+  --spacing-6: 1.5rem; /* 24px */
+  --spacing-8: 2rem; /* 32px */
+  --spacing-10: 2.5rem; /* 40px */
+  --spacing-12: 3rem; /* 48px */
+  --spacing-16: 4rem; /* 64px */
+
+  /* --- Border Radius --- */
+  --radius-sm: 0.25rem; /*  4px */
+  --radius-md: 0.5rem; /*  8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-2xl: 1.5rem; /* 24px */
+  --radius-3xl: 1.875rem; /* 30px */
+  --radius-full: 9999px; /* Circle */
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 6px 18px rgb(15 23 42 / 0.05);
+  --shadow-md: 0 12px 30px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 20px 48px rgb(15 23 42 / 0.11);
+  --shadow-xl: 0 28px 70px rgb(15 23 42 / 0.14);
+  --shadow-card: 0 10px 30px rgb(15 23 42 / 0.08);
+  --shadow-card-hover: 0 18px 48px rgb(15 23 42 / 0.12);
+  --shadow-panel: 0 18px 60px rgb(15 23 42 / 0.14);
+
+  /* --- Transitions --- */
+  --transition-fast: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-base: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-slow: 520ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* --- Breakpoints (mobile-first) --- */
+  --breakpoint-sm: 640px; /* Tablet Portrait */
+  --breakpoint-md: 768px; /* Tablet Landscape */
+  --breakpoint-lg: 1024px; /* Desktop */
+  --breakpoint-xl: 1280px; /* Large Desktop */
+  --breakpoint-2xl: 1536px; /* Extra Large */
+}
+
+/* ============================================================
+   Dark Mode — class-based via next-themes (.dark on <html>)
+   ============================================================ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --color-background: oklch(0.16 0.01 260);
+  --color-surface: oklch(0.2 0.01 260);
+  --color-surface-raised: oklch(0.24 0.012 260);
+  --color-border: oklch(0.3 0.01 260);
+  --color-text: oklch(0.95 0 0);
+  --color-text-secondary: oklch(0.68 0 0);
+  --color-text-disabled: oklch(0.45 0 0);
+  --color-panel-border: rgb(255 255 255 / 0.12);
+  --color-panel-glow: rgb(255 255 255 / 0.06);
+  --color-page-tint: oklch(0.28 0.035 250);
+  --shadow-sm: 0 8px 20px rgb(0 0 0 / 0.18);
+  --shadow-md: 0 14px 32px rgb(0 0 0 / 0.24);
+  --shadow-lg: 0 24px 56px rgb(0 0 0 / 0.32);
+  --shadow-xl: 0 32px 84px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 16px 40px rgb(0 0 0 / 0.24);
+  --shadow-card-hover: 0 24px 56px rgb(0 0 0 / 0.32);
+  --shadow-panel: 0 30px 90px rgb(0 0 0 / 0.4);
+}
+
+/* ============================================================
+   Base Styles
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in oklab, var(--color-page-tint) 35%, transparent) 0%,
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at top right,
+      color-mix(in oklab, var(--color-primary) 10%, transparent) 0%,
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-background) 92%, white 8%) 0%,
+      var(--color-background) 100%
+    );
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base);
+}
+
+/* Skip navigation — BITV 2.0 / WCAG 2.4.1 */
+.skip-nav {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-nav:focus {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  z-index: 9999;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Focus visible — outline (not ring) for Windows High Contrast Mode compatibility */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid ButtonText;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================================
+   Utility Classes
+   ============================================================ */
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus Visible Ring Utility */
+.focus-visible-ring {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Container Query Support */
+.container-query {
+  container-type: inline-size;
+}
+
+.page-shell {
+  position: relative;
+}
+
+.page-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 12% 18%,
+      color-mix(in oklab, var(--color-primary) 10%, transparent) 0%,
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 88% 8%,
+      color-mix(in oklab, var(--color-secondary) 10%, transparent) 0%,
+      transparent 20%
+    );
+  opacity: 0.8;
+  z-index: -1;
+}
+
+.glass-panel {
+  background: color-mix(in oklab, var(--color-surface-raised) 68%, transparent);
+  border: 0.5px solid var(--color-panel-border);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(34px) saturate(175%);
+  -webkit-backdrop-filter: blur(34px) saturate(175%);
+}
+
+.soft-panel {
+  background: color-mix(in oklab, var(--color-surface) 88%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-border) 65%, var(--color-panel-border) 35%);
+  box-shadow: var(--shadow-card);
+}
+
+.panel-glow {
+  position: relative;
+}
+
+.panel-glow::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  border: 0.5px solid var(--color-panel-glow);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.motion-enter {
+  opacity: 0;
+  animation: fade-up 880ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--motion-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+.motion-pop {
+  opacity: 0;
+  animation: soft-pop 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--motion-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+.motion-hover {
+  transition:
+    transform var(--transition-slow),
+    box-shadow var(--transition-slow),
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base);
+  will-change: transform, box-shadow;
+}
+
+.motion-hover:hover {
+  transform: translateY(-3px);
+}
+
+.motion-nav {
+  transition:
+    transform var(--transition-base),
+    background-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.motion-nav:hover {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-enter,
+  .motion-pop {
+    opacity: 1;
+    animation: none;
+  }
+
+  .motion-hover,
+  .motion-nav {
+    transition: none;
+  }
+
+  .motion-hover:hover,
+  .motion-nav:hover {
+    transform: none;
+  }
+}
