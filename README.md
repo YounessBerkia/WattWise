@@ -111,7 +111,7 @@ Got ideas? Found a bug? Want to add a feature?
 4. Push to the branch
 5. Open a Pull Request
 
-We're not strict about commit messages, but try to make them descriptive. "Fixed stuff" tells nobody anything.
+I am not strict about commit messages, but try to make them descriptive. "Fixed stuff" tells nobody anything.
 
 ---
 
