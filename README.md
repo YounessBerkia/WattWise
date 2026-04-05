@@ -7,7 +7,7 @@
 <p align="center">
   <img src="assets/Logo.png" alt="WattWise Logo" width="64" height="64">
   <br><br>
-  <a href="https://github.com/yourusername/wattwise/blob/main/LICENSE">
+  <a href="https://github.com/YounessBerkia/WattWise/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT">
   </a>
   <a href="https://nextjs.org">
@@ -22,9 +22,11 @@
 
 ## What is WattWise?
 
-I'll be honest—I got tired of not knowing where my electricity was actually going. Sure, the monthly bill arrives, but what does that tell you about consumption patterns? Nothing useful, that's what.
+I'll be honest—I got tired of not knowing where my electricity was actually going. In Germany, we don't get monthly bills anyway. Instead, we pay a fixed "Abschlag" every month, and only at the end of the year do we find out if we've been overpaying (hello, refund!) or underpaying (hello, surprise bill!). Without tracking your actual consumption, you're basically flying blind until the yearly settlement arrives.
 
-WattWise is an energy tracking dashboard designed for households that want more than just a number on a piece of paper. You enter your meter readings, and it does the heavy lifting: analyzing consumption over time, projecting costs based on your tariff, and giving you real insight into your energy usage.
+WattWise is an energy tracking dashboard designed for households that want more than just a number on a piece of paper. You enter your meter readings, and it does the heavy lifting: analyzing consumption over time, projecting costs based on your tariff, and giving you real insight into your energy usage—so you're never caught off guard by that annual Abrechnung.
+
+**Live Demo**: Check out the deployed version at [https://watt-wise-mu.vercel.app/dashboard](https://watt-wise-mu.vercel.app/dashboard)
 
 It's not a smart home integration (though that would be cool). It's for people who still read their meter manually and want to make sense of the data.
 
@@ -42,42 +44,32 @@ Here's what you actually get:
 
 ---
 
-## The Stack
+## Tech Stack
 
-This thing runs on:
-
-- **Next.js 16** (App Router) — The framework that makes React actually usable
-- **React 19** — Yes, the newest version. We like living dangerously.
-- **Tailwind CSS v4** — Styling that doesn't make you want to pull your hair out
-- **Zustand** — State management without the boilerplate hell
-- **Recharts** — Charts that don't look like they were designed in 1999
-- **React Hook Form + Zod** — Forms that validate themselves. Finally.
-- **Vitest** — Testing because we're not animals
+- **Next.js 16** (App Router)
+- **React 19**
+- **Tailwind CSS v4**
+- **Zustand** — state management
+- **Recharts** — charting
+- **React Hook Form + Zod** — form validation
+- **Vitest** — testing
 
 ---
 
 ## Getting Started
 
+The app is live at [https://watt-wise-mu.vercel.app/dashboard](https://watt-wise-mu.vercel.app/dashboard).
+
+To run locally:
+
 ```bash
-# Clone the repo
-git clone https://github.com/yourusername/wattwise.git
-cd wattwise
-
-# Install dependencies
+git clone https://github.com/YounessBerkia/WattWise.git
+cd WattWise
 npm install
-
-# Fire it up
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and you're in.
-
-### Building for Production
-
-```bash
-npm run build
-npm start
-```
+Open [http://localhost:3000](http://localhost:3000).
 
 ### Running Tests
 
@@ -148,5 +140,5 @@ This project is under the MIT License. Do what you want with it. Attribution is 
 <p align="center">
   <img src="assets/Logo.png" alt="Made with care" width="32" height="32">
   <br>
-  <small>Made with care, not by AI</small>
+  <small>Made with care</small>
 </p>
