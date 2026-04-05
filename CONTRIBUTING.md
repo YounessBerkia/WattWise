@@ -27,8 +27,6 @@ Ideas are welcome. But before you post that feature request:
 - Consider if it solves a problem most users would have, or if it's a niche edge case
 - Explain the use case—why would someone want this? What's the motivation?
 
-I say no to plenty of ideas. Don't take it personally. Sometimes it just doesn't fit.
-
 ---
 
 ### Pull Requests
@@ -48,7 +46,7 @@ Want to code? Here's how:
 6. **Push** to your fork
 7. **Open a Pull Request**
 
-I'll review it. Might ask for changes. That's normal.
+I'll review it. Might ask for changes.
 
 ---
 
@@ -56,8 +54,8 @@ I'll review it. Might ask for changes. That's normal.
 
 We use:
 
-- **ESLint** + **Prettier** — don't fight it, just let the tools do their job
-- **TypeScript** — yes, everywhere. No exceptions.
+- **ESLint** + **Prettier** — 
+- **TypeScript** — 
 - **Tailwind CSS v4** — for styling
 - **Zustand** — for state management
 
