@@ -2,13 +2,23 @@
 
 import { useState } from 'react';
 import { useEnergyStore } from '@/hooks/useEnergyStore';
-import { AreaChart, BarChart } from '@tremor/react';
+import { AreaChart } from '@tremor/react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import { PeriodSelector } from '@/components/features/analytics/period-selector';
 import { isAfter, subDays, subMonths, subYears } from 'date-fns';
 import { formatDisplayDate } from '@/lib/utils';
 import { getConsumptionPointsForPeriod } from '@/lib/calculations';
 import { Activity, BarChart3, CalendarRange } from 'lucide-react';
+import {
+  Bar,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  BarChart as RechartsBarChart,
+} from 'recharts';
 
 type Period = 'day' | 'week' | 'month' | 'year';
 
@@ -262,29 +272,49 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="relative overflow-hidden rounded-[26px] bg-white/72 p-4 shadow-sm dark:bg-white/8">
-              <BarChart
-                className="relative h-72
-                  [&_.recharts-cartesian-axis-line]:stroke-transparent
-                  [&_.recharts-cartesian-axis-tick-line]:stroke-transparent
-                  [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)]
-                  [&_.recharts-cartesian-axis-tick-value]:text-[11px]
-                  [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_50%,transparent)]
-                  [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent
-                  [&_.recharts-rectangle]:[rx:10px]
-                  [&_.recharts-rectangle]:[ry:10px]
-                  [&_.recharts-bar-rectangle_path]:fill-[#0072B2]
-                  [&_.recharts-bar-rectangle_path]:opacity-95
-                  [&_.recharts-bar-rectangle_path]:stroke-[#1E88D8]
-                  [&_.recharts-bar-rectangle_path]:[stroke-width:1.5px]
-                  [&_.recharts-bar-background-rectangle]:fill-[rgba(0,114,178,0.08)]"
-                data={weekdayData}
-                index="day"
-                categories={['kwh']}
-                colors={['blue']}
-                valueFormatter={(value) => `${value.toFixed(2)} kWh`}
-                showLegend={false}
-                showGridLines={true}
-              />
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsBarChart data={weekdayData} barCategoryGap="22%">
+                    <CartesianGrid
+                      vertical={false}
+                      stroke="color-mix(in oklab, var(--color-border) 50%, transparent)"
+                    />
+                    <XAxis
+                      dataKey="day"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }}
+                      tickFormatter={(value) => `${value.toFixed(0)}`}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(0, 114, 178, 0.08)', radius: 12 }}
+                      contentStyle={{
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255,255,255,0.6)',
+                        background: 'rgba(255,255,255,0.92)',
+                        boxShadow: '0 12px 30px rgba(15, 23, 42, 0.08)',
+                      }}
+                      formatter={(value: number) => [`${value.toFixed(2)} kWh`, 'Durchschnitt']}
+                      labelStyle={{ color: 'var(--color-text)', fontWeight: 600 }}
+                    />
+                    <Bar dataKey="kwh" radius={[10, 10, 10, 10]} maxBarSize={38}>
+                      {weekdayData.map((entry) => (
+                        <Cell
+                          key={entry.day}
+                          fill="#0072B2"
+                          stroke="#1E88D8"
+                          strokeWidth={1.5}
+                        />
+                      ))}
+                    </Bar>
+                  </RechartsBarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </CardContent>
         </Card>

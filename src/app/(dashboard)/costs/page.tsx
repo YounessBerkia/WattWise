@@ -1,6 +1,7 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { ChangeEvent, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import { useEnergyStore } from '@/hooks/useEnergyStore';
@@ -18,19 +19,48 @@ import { formatKwh } from '@/lib/utils';
 
 export default function CostsPage() {
   const { contract, updateContract, readings } = useEnergyStore();
+  const [baseCostMode, setBaseCostMode] = useState<'year' | 'month'>('year');
 
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
     formState: { errors },
   } = useForm<ContractFormData>({
     resolver: zodResolver(contractSchema),
     defaultValues: contract,
   });
 
+  const watchedBaseCostYearly = useWatch({
+    control,
+    name: 'baseCostYearly',
+  });
+
+  const baseCostInputValue = useMemo(() => {
+    if (typeof watchedBaseCostYearly !== 'number' || !Number.isFinite(watchedBaseCostYearly)) {
+      return '';
+    }
+
+    return baseCostMode === 'year'
+      ? watchedBaseCostYearly.toFixed(2)
+      : (watchedBaseCostYearly / 12).toFixed(2);
+  }, [baseCostMode, watchedBaseCostYearly]);
+
   const onSubmit = (data: ContractFormData) => {
     updateContract(data);
     alert('Vertrag aktualisiert!');
+  };
+
+  const handleBaseCostChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value;
+    const parsedValue = rawValue === '' ? NaN : Number(rawValue);
+
+    setValue('baseCostYearly', baseCostMode === 'year' ? parsedValue : parsedValue * 12, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
   };
 
   // Berechnungen
@@ -43,6 +73,12 @@ export default function CostsPage() {
 
   const variableCostYearly = yearlyProjection * contract.pricePerKwh;
   const fixedCostYearly = contract.baseCostYearly;
+  const expectedVariableCostYearly = contract.expectedYearlyUsage * contract.pricePerKwh;
+  const monthlyFixedShare = fixedCostYearly / 12;
+  const monthlyVariableBudget = Math.max(contract.monthlyAdvancePayment - monthlyFixedShare, 0);
+  const yearlyVariableBudget = Math.max(yearlyAdvancePaid - fixedCostYearly, 0);
+  const prepaidConsumptionAllowance =
+    contract.pricePerKwh > 0 ? yearlyVariableBudget / contract.pricePerKwh : 0;
 
   return (
     <div className="w-full space-y-6 lg:space-y-8">
@@ -50,7 +86,8 @@ export default function CostsPage() {
         <h1 className="text-text mb-2 text-3xl font-bold lg:text-4xl">Kosten & Vertrag</h1>
         <p className="text-text-secondary">
           Arbeitspreis, jährlichen Grundpreis und Abschlag verwalten, um die Jahresrechnung korrekt
-          abzuschätzen.
+          abzuschätzen. Der Abschlag enthält dabei immer sowohl den fixen Grundpreis als auch einen
+          Anteil für den tatsächlichen Verbrauch.
         </p>
       </div>
 
@@ -74,16 +111,48 @@ export default function CostsPage() {
               </div>
 
               <div className="flex flex-col gap-1">
+                <div className="mb-1 flex items-center justify-between gap-3">
+                  <span className="text-text block text-sm font-medium tracking-tight">
+                    Fixkosten
+                  </span>
+                  <div className="inline-flex rounded-full border border-white/65 bg-white/70 p-1 shadow-sm dark:border-white/10 dark:bg-white/8">
+                    <button
+                      type="button"
+                      onClick={() => setBaseCostMode('year')}
+                      className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                        baseCostMode === 'year'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'text-text-secondary hover:text-text'
+                      }`}
+                    >
+                      Jahr
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBaseCostMode('month')}
+                      className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                        baseCostMode === 'month'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'text-text-secondary hover:text-text'
+                      }`}
+                    >
+                      Monat
+                    </button>
+                  </div>
+                </div>
                 <Input
                   type="number"
                   step="0.01"
-                  label="Grundpreis pro Jahr (€)"
+                  label={baseCostMode === 'year' ? 'Grundpreis pro Jahr (€)' : 'Grundpreis pro Monat (€)'}
                   error={errors.baseCostYearly?.message}
-                  {...register('baseCostYearly', { valueAsNumber: true })}
+                  value={baseCostInputValue}
+                  onChange={handleBaseCostChange}
                   required
                 />
                 <p className="text-text-secondary text-xs">
-                  Fester Jahresbetrag, der unabhängig vom Verbrauch immer anfällt
+                  {baseCostMode === 'year'
+                    ? 'Fester Jahresbetrag, der unabhängig vom Verbrauch immer anfällt'
+                    : 'Monatlicher Anteil des festen Grundpreises. Wird intern auf den Jahreswert umgerechnet.'}
                 </p>
               </div>
 
@@ -200,6 +269,57 @@ export default function CostsPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-[22px] bg-white/62 px-5 py-4 shadow-sm dark:bg-white/8">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="bg-secondary/10 text-secondary flex h-9 w-9 items-center justify-center rounded-xl">
+                  <Lock className="h-4 w-4" />
+                </span>
+                <p className="text-text-secondary text-xs font-medium tracking-wide uppercase">
+                  Fixanteil pro Monat
+                </p>
+              </div>
+              <p className="text-text text-2xl font-semibold">{monthlyFixedShare.toFixed(2)} €</p>
+              <p className="text-text-secondary mt-1 text-xs">
+                {fixedCostYearly.toFixed(2)} € Grundpreis ÷ 12 Monate
+              </p>
+            </div>
+
+            <div className="rounded-[22px] bg-white/62 px-5 py-4 shadow-sm dark:bg-white/8">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-xl">
+                  <Zap className="h-4 w-4" />
+                </span>
+                <p className="text-text-secondary text-xs font-medium tracking-wide uppercase">
+                  Verbrauchsbudget pro Monat
+                </p>
+              </div>
+              <p className="text-text text-2xl font-semibold">
+                {monthlyVariableBudget.toFixed(2)} €
+              </p>
+              <p className="text-text-secondary mt-1 text-xs">
+                Vom Abschlag bleibt dieser Betrag nach Abzug des Fixanteils für kWh übrig
+              </p>
+            </div>
+
+            <div className="rounded-[22px] bg-white/62 px-5 py-4 shadow-sm dark:bg-white/8">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-xl">
+                  <TrendingUp className="h-4 w-4" />
+                </span>
+                <p className="text-text-secondary text-xs font-medium tracking-wide uppercase">
+                  Durch Abschlag finanzierte kWh
+                </p>
+              </div>
+              <p className="text-text text-2xl font-semibold">
+                {formatKwh(prepaidConsumptionAllowance)} kWh
+              </p>
+              <p className="text-text-secondary mt-1 text-xs">
+                {yearlyVariableBudget.toFixed(2)} € Verbrauchsbudget ÷ {contract.pricePerKwh.toFixed(4)} €
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-[22px] bg-white/62 px-5 py-4 shadow-sm dark:bg-white/8">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded-xl">
@@ -256,12 +376,27 @@ export default function CostsPage() {
               {actualBalance.amount.toFixed(2)} €.
             </p>
             <p className="text-text-secondary mt-3 text-sm leading-6">
+              Von deinem monatlichen Abschlag von {contract.monthlyAdvancePayment.toFixed(2)} €
+              entfallen rechnerisch {monthlyFixedShare.toFixed(2)} € auf den festen Grundpreis.
+              Die übrigen {monthlyVariableBudget.toFixed(2)} € sind das monatliche Budget für den
+              Arbeitspreis.
+            </p>
+            <p className="text-text-secondary mt-3 text-sm leading-6">
+              Auf das ganze Jahr gerechnet bleiben damit nach Abzug des Grundpreises
+              {' '}
+              {yearlyVariableBudget.toFixed(2)} € für den Verbrauch. Das entspricht bei deinem
+              Arbeitspreis von {contract.pricePerKwh.toFixed(4)} € ungefähr
+              {' '}
+              {formatKwh(prepaidConsumptionAllowance)} kWh.
+            </p>
+            <p className="text-text-secondary mt-3 text-sm leading-6">
               Der Grundpreis von {contract.baseCostYearly.toFixed(2)} € fällt immer an. Energiesparen
               reduziert nur den Arbeitspreis, niemals den Grundpreis.
             </p>
             <p className="text-text-secondary mt-3 text-sm leading-6">
               Zum Vergleich auf Basis der Vertragsannahme von {formatKwh(contract.expectedYearlyUsage)}{' '}
-              kWh läge die Jahresrechnung bei {expectedCost.toFixed(2)} €.
+              kWh läge die Jahresrechnung bei {expectedCost.toFixed(2)} €,
+              davon {expectedVariableCostYearly.toFixed(2)} € Arbeitspreis plus {fixedCostYearly.toFixed(2)} € Grundpreis.
             </p>
           </div>
         </CardContent>
