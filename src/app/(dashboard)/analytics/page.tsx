@@ -299,7 +299,16 @@ export default function AnalyticsPage() {
                         background: 'rgba(255,255,255,0.92)',
                         boxShadow: '0 12px 30px rgba(15, 23, 42, 0.08)',
                       }}
-                      formatter={(value: number) => [`${value.toFixed(2)} kWh`, 'Durchschnitt']}
+                      formatter={(value) => {
+                        const numericValue =
+                          typeof value === 'number'
+                            ? value
+                            : typeof value === 'string'
+                              ? Number(value)
+                              : 0;
+
+                        return [`${numericValue.toFixed(2)} kWh`, 'Durchschnitt'];
+                      }}
                       labelStyle={{ color: 'var(--color-text)', fontWeight: 600 }}
                     />
                     <Bar dataKey="kwh" radius={[10, 10, 10, 10]} maxBarSize={38}>

@@ -94,95 +94,182 @@ export default function CostsPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(420px,0.95fr)]">
         <Card>
           <CardHeader>
-            <CardTitle>Vertragsdetails</CardTitle>
+            <div>
+              <p className="text-text-secondary text-sm font-medium tracking-[0.2em] uppercase">
+                Vertrag
+              </p>
+              <CardTitle className="mt-2">Vertragsdetails</CardTitle>
+            </div>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5 md:grid-cols-2">
-              <div className="flex flex-col gap-1">
-                <Input
-                  type="number"
-                  step="0.01"
-                  label="Arbeitspreis pro kWh (€)"
-                  error={errors.pricePerKwh?.message}
-                  {...register('pricePerKwh', { valueAsNumber: true })}
-                  required
-                />
-                <p className="text-text-secondary text-xs">Variabler Preis je verbrauchter kWh</p>
+          <CardContent className="space-y-6">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-[22px] bg-white/62 px-4 py-4 shadow-sm dark:bg-white/8">
+                <p className="text-text-secondary text-xs tracking-[0.16em] uppercase">
+                  Arbeitspreis
+                </p>
+                <p className="text-text mt-2 text-lg font-semibold">
+                  {contract.pricePerKwh.toFixed(4)} €
+                </p>
+                <p className="text-text-secondary mt-1 text-xs">pro kWh</p>
               </div>
+              <div className="rounded-[22px] bg-white/62 px-4 py-4 shadow-sm dark:bg-white/8">
+                <p className="text-text-secondary text-xs tracking-[0.16em] uppercase">
+                  Grundpreis
+                </p>
+                <p className="text-text mt-2 text-lg font-semibold">
+                  {contract.baseCostYearly.toFixed(2)} €
+                </p>
+                <p className="text-text-secondary mt-1 text-xs">pro Jahr</p>
+              </div>
+              <div className="rounded-[22px] bg-white/62 px-4 py-4 shadow-sm dark:bg-white/8">
+                <p className="text-text-secondary text-xs tracking-[0.16em] uppercase">
+                  Monatlicher Abschlag
+                </p>
+                <p className="text-text mt-2 text-lg font-semibold">
+                  {contract.monthlyAdvancePayment.toFixed(2)} €
+                </p>
+                <p className="text-text-secondary mt-1 text-xs">pro Monat</p>
+              </div>
+            </div>
 
-              <div className="flex flex-col gap-1">
-                <div className="mb-1 flex items-center justify-between gap-3">
-                  <span className="text-text block text-sm font-medium tracking-tight">
-                    Fixkosten
-                  </span>
-                  <div className="inline-flex rounded-full border border-white/65 bg-white/70 p-1 shadow-sm dark:border-white/10 dark:bg-white/8">
-                    <button
-                      type="button"
-                      onClick={() => setBaseCostMode('year')}
-                      className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
-                        baseCostMode === 'year'
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'text-text-secondary hover:text-text'
-                      }`}
-                    >
-                      Jahr
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setBaseCostMode('month')}
-                      className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
-                        baseCostMode === 'month'
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'text-text-secondary hover:text-text'
-                      }`}
-                    >
-                      Monat
-                    </button>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                <div className="rounded-[26px] bg-white/58 p-5 shadow-sm dark:bg-white/8">
+                  <div className="mb-4">
+                    <p className="text-text-secondary text-xs font-medium tracking-[0.18em] uppercase">
+                      Variable Kosten
+                    </p>
+                    <p className="text-text mt-2 text-lg font-semibold">Verbrauch & Abschlag</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        label="Arbeitspreis pro kWh (€)"
+                        error={errors.pricePerKwh?.message}
+                        {...register('pricePerKwh', { valueAsNumber: true })}
+                        required
+                      />
+                      <p className="text-text-secondary text-xs">
+                        Variabler Preis je verbrauchter kWh
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        label="Monatliche Kosten / Abschlag (€)"
+                        error={errors.monthlyAdvancePayment?.message}
+                        {...register('monthlyAdvancePayment', { valueAsNumber: true })}
+                        required
+                      />
+                      <p className="text-text-secondary text-xs">
+                        Das ist der echte monatliche Betrag, den du an den Versorger zahlst
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <Input
-                  type="number"
-                  step="0.01"
-                  label={baseCostMode === 'year' ? 'Grundpreis pro Jahr (€)' : 'Grundpreis pro Monat (€)'}
-                  error={errors.baseCostYearly?.message}
-                  value={baseCostInputValue}
-                  onChange={handleBaseCostChange}
-                  required
-                />
-                <p className="text-text-secondary text-xs">
-                  {baseCostMode === 'year'
-                    ? 'Fester Jahresbetrag, der unabhängig vom Verbrauch immer anfällt'
-                    : 'Monatlicher Anteil des festen Grundpreises. Wird intern auf den Jahreswert umgerechnet.'}
-                </p>
+
+                <div className="rounded-[26px] bg-white/58 p-5 shadow-sm dark:bg-white/8">
+                  <div className="mb-4 flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-text-secondary text-xs font-medium tracking-[0.18em] uppercase">
+                        Fixkosten
+                      </p>
+                      <p className="text-text mt-2 text-lg font-semibold">Grundpreis</p>
+                    </div>
+                    <div className="inline-flex rounded-full border border-white/65 bg-white/70 p-1 shadow-sm dark:border-white/10 dark:bg-white/8">
+                      <button
+                        type="button"
+                        onClick={() => setBaseCostMode('year')}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                          baseCostMode === 'year'
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'text-text-secondary hover:text-text'
+                        }`}
+                      >
+                        Jahr
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBaseCostMode('month')}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                          baseCostMode === 'month'
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'text-text-secondary hover:text-text'
+                        }`}
+                      >
+                        Monat
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        label={
+                          baseCostMode === 'year'
+                            ? 'Grundpreis pro Jahr (€)'
+                            : 'Grundpreis pro Monat (€)'
+                        }
+                        error={errors.baseCostYearly?.message}
+                        value={baseCostInputValue}
+                        onChange={handleBaseCostChange}
+                        required
+                      />
+                      <p className="text-text-secondary text-xs">
+                        {baseCostMode === 'year'
+                          ? 'Fester Jahresbetrag, der unabhängig vom Verbrauch immer anfällt'
+                          : 'Monatlicher Anteil des festen Grundpreises. Wird intern auf den Jahreswert umgerechnet.'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-[20px] border border-white/60 bg-white/72 px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/6">
+                      <p className="text-text-secondary text-xs tracking-[0.14em] uppercase">
+                        Umrechnung
+                      </p>
+                      <p className="text-text mt-2 text-base font-semibold">
+                        {baseCostMode === 'year'
+                          ? `${(contract.baseCostYearly / 12).toFixed(2)} € pro Monat`
+                          : `${contract.baseCostYearly.toFixed(2)} € pro Jahr`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <Input
-                  type="number"
-                  step="0.01"
-                  label="Monatlicher Abschlag (€)"
-                  error={errors.monthlyAdvancePayment?.message}
-                  {...register('monthlyAdvancePayment', { valueAsNumber: true })}
-                  required
-                />
-                <p className="text-text-secondary text-xs">
-                  Vorauszahlung pro Monat, aus der Erstattung oder Nachzahlung entsteht
-                </p>
-              </div>
+              <div className="rounded-[26px] bg-white/58 p-5 shadow-sm dark:bg-white/8">
+                <div className="mb-4">
+                  <p className="text-text-secondary text-xs font-medium tracking-[0.18em] uppercase">
+                    Jahresannahme
+                  </p>
+                  <p className="text-text mt-2 text-lg font-semibold">Verbrauchsprognose</p>
+                </div>
 
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <Input
-                  type="number"
-                  step="1"
-                  label="Erwarteter Jahresverbrauch (kWh)"
-                  error={errors.expectedYearlyUsage?.message}
-                  {...register('expectedYearlyUsage', { valueAsNumber: true })}
-                  required
-                />
-              </div>
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                  <div className="flex flex-col gap-1">
+                    <Input
+                      type="number"
+                      step="1"
+                      label="Erwarteter Jahresverbrauch (kWh)"
+                      error={errors.expectedYearlyUsage?.message}
+                      {...register('expectedYearlyUsage', { valueAsNumber: true })}
+                      required
+                    />
+                    <p className="text-text-secondary text-xs">
+                      Dieser Wert bildet die Basis für die Einschätzung des Abschlags
+                    </p>
+                  </div>
 
-              <div className="md:col-span-2">
-                <Button type="submit">Speichern</Button>
+                  <Button type="submit" className="w-full lg:w-auto">
+                    Speichern
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>
