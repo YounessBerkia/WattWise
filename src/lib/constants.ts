@@ -34,7 +34,7 @@ export const DEFAULT_CONTRACT: Contract = {
 export const DEFAULT_SETTINGS: Settings = {
   currency: 'EUR',
   darkMode: false,
-  dateFormat: 'EU', // DD.MM.YYYY
+  dateFormat: 'EU', // DD-MM-YYYY
   language: 'de',
 };
 
@@ -69,7 +69,7 @@ export const UI_COLORS = {
  * Date format strings (compatible with date-fns)
  */
 export const DATE_FORMATS = {
-  EU: 'dd.MM.yyyy', // German: 02.04.2026
+  EU: 'dd-MM-yyyy', // German: 02-04-2026
   US: 'MM/dd/yyyy', // US: 04/02/2026
   ISO: 'yyyy-MM-dd', // ISO: 2026-04-02
 } as const;

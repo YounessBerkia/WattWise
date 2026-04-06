@@ -28,8 +28,8 @@ export default function CostsPage() {
 
   // Berechnungen
   const yearlyProjection = calculateYearlyProjection(readings);
-  const projectedCost = calculateTotalCost(yearlyProjection, contract, 12);
-  const expectedCost = calculateTotalCost(contract.expectedYearlyUsage, contract, 12);
+  const projectedCost = calculateTotalCost(yearlyProjection, contract, 365);
+  const expectedCost = calculateTotalCost(contract.expectedYearlyUsage, contract, 365);
 
   // Balance: Vergleich Prognose vs. Vertrag
   const balance = {

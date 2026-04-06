@@ -11,9 +11,10 @@ import {
   calculateMonthlyProjection,
   calculateYearlyProjection,
   getLatestReading,
-  calculateConsumption,
   calculateTrend,
+  getReadingConsumptionPoints,
 } from '@/lib/calculations';
+import { formatDisplayDate } from '@/lib/utils';
 
 // Lazy load chart component for performance
 const ConsumptionChart = dynamic(
@@ -41,24 +42,17 @@ export default function DashboardPage() {
   const dailyAvg = calculateAverageDailyUsage(readings);
   const monthlyProjection = calculateMonthlyProjection(readings);
   const yearlyProjection = calculateYearlyProjection(readings);
+  const consumptionPoints = getReadingConsumptionPoints(readings);
 
   // Aktueller Verbrauch (seit letztem Eintrag)
   const currentConsumption =
-    readings.length >= 2
-      ? calculateConsumption(readings[readings.length - 1].kwh, readings[readings.length - 2].kwh)
-      : 0;
+    consumptionPoints.length > 0 ? consumptionPoints[consumptionPoints.length - 1].consumption : 0;
 
   // Trends (Dummy-Werte für Demo - später aus echten Vergleichen)
   const consumptionTrend = calculateTrend(currentConsumption, 150);
   const dailyTrend = calculateTrend(dailyAvg, 8.0);
   const yearlyTrend = calculateTrend(yearlyProjection, contract.expectedYearlyUsage);
-  const latestReadingDate = lastReading
-    ? new Date(lastReading.timestamp).toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      })
-    : null;
+  const latestReadingDate = lastReading ? formatDisplayDate(lastReading.timestamp) : null;
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -309,7 +303,7 @@ export default function DashboardPage() {
                     <div>
                       <p className="text-text-secondary text-sm font-medium">Messdatum</p>
                       <span className="text-text">
-                        {new Date(reading.timestamp).toLocaleDateString('de-DE')}
+                        {formatDisplayDate(reading.timestamp)}
                       </span>
                     </div>
                     <span className="text-text text-lg font-semibold tracking-tight">

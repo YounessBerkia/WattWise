@@ -21,13 +21,25 @@ function parseDateToTimestamp(dateValue: string): number | null {
 /**
  * Liefert eine chronologisch sortierte Kopie der Zählerstände.
  */
-function sortReadingsByTimestamp(readings: EnergyReading[]): EnergyReading[] {
+export function sortReadingsByTimestamp(readings: EnergyReading[]): EnergyReading[] {
   return [...readings].sort((a, b) => {
     const aTimestamp = parseDateToTimestamp(a.timestamp) ?? 0;
     const bTimestamp = parseDateToTimestamp(b.timestamp) ?? 0;
 
     return aTimestamp - bTimestamp;
   });
+}
+
+export interface ReadingBounds {
+  previousReading: EnergyReading | null;
+  nextReading: EnergyReading | null;
+  sameDateReading: EnergyReading | null;
+}
+
+export interface ReadingConsumptionPoint {
+  reading: EnergyReading;
+  consumption: number;
+  previousReading: EnergyReading | null;
 }
 
 /**
@@ -176,6 +188,122 @@ export function getLatestReading(readings: EnergyReading[]): EnergyReading | nul
   const sortedReadings = sortReadingsByTimestamp(readings);
 
   return sortedReadings[sortedReadings.length - 1] ?? null;
+}
+
+/**
+ * Liefert die direkten Nachbarn eines Datums in der chronologischen Reihenfolge.
+ */
+export function getReadingBoundsForDate(
+  readings: EnergyReading[],
+  targetDate: string,
+): ReadingBounds {
+  const targetTimestamp = parseDateToTimestamp(targetDate);
+
+  if (targetTimestamp === null) {
+    return {
+      previousReading: null,
+      nextReading: null,
+      sameDateReading: null,
+    };
+  }
+
+  const sortedReadings = sortReadingsByTimestamp(readings);
+
+  let previousReading: EnergyReading | null = null;
+  let nextReading: EnergyReading | null = null;
+  let sameDateReading: EnergyReading | null = null;
+
+  for (const reading of sortedReadings) {
+    const readingTimestamp = parseDateToTimestamp(reading.timestamp);
+
+    if (readingTimestamp === null) {
+      continue;
+    }
+
+    if (readingTimestamp === targetTimestamp) {
+      sameDateReading = reading;
+      continue;
+    }
+
+    if (readingTimestamp < targetTimestamp) {
+      previousReading = reading;
+      continue;
+    }
+
+    if (readingTimestamp > targetTimestamp) {
+      nextReading = reading;
+      break;
+    }
+  }
+
+  return {
+    previousReading,
+    nextReading,
+    sameDateReading,
+  };
+}
+
+/**
+ * Liefert alle chronologischen Verbrauchsdifferenzen pro Messpunkt.
+ */
+export function getReadingConsumptionPoints(
+  readings: EnergyReading[],
+): ReadingConsumptionPoint[] {
+  const sortedReadings = sortReadingsByTimestamp(readings);
+
+  return sortedReadings.map((reading, index) => {
+    const previousReading = index > 0 ? sortedReadings[index - 1] : null;
+
+    return {
+      reading,
+      previousReading,
+      consumption: previousReading ? calculateConsumption(reading.kwh, previousReading.kwh) : 0,
+    };
+  });
+}
+
+/**
+ * Liefert Messpunkte innerhalb eines Zeitraums plus optionalem Referenzwert davor.
+ */
+export function getConsumptionPointsForPeriod(
+  readings: EnergyReading[],
+  startDate: Date,
+): ReadingConsumptionPoint[] {
+  const sortedReadings = sortReadingsByTimestamp(readings);
+  const startTimestamp = startDate.getTime();
+
+  let anchorReading: EnergyReading | null = null;
+
+  for (const reading of sortedReadings) {
+    const readingTimestamp = parseDateToTimestamp(reading.timestamp);
+
+    if (readingTimestamp === null) {
+      continue;
+    }
+
+    if (readingTimestamp < startTimestamp) {
+      anchorReading = reading;
+      continue;
+    }
+
+    break;
+  }
+
+  const periodReadings = sortedReadings.filter((reading) => {
+    const readingTimestamp = parseDateToTimestamp(reading.timestamp);
+
+    return readingTimestamp !== null && readingTimestamp >= startTimestamp;
+  });
+
+  return periodReadings.map((reading, index) => {
+    const previousReading = index > 0 ? periodReadings[index - 1] : anchorReading;
+
+    return {
+      reading,
+      previousReading,
+      consumption: previousReading ? calculateConsumption(reading.kwh, previousReading.kwh) : 0,
+    };
+  });
 }
 
 /**

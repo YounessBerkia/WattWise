@@ -12,8 +12,9 @@ import {
   validateReadingSequence,
   type EnergyReadingFormData,
 } from '@/lib/validators';
-import { getLatestReading } from '@/lib/calculations';
+import { getLatestReading, getReadingBoundsForDate } from '@/lib/calculations';
 import { compressImage } from '@/lib/storage';
+import { formatDisplayDate } from '@/lib/utils';
 import { Camera, CalendarRange, UploadCloud, X } from 'lucide-react';
 
 /**
@@ -57,9 +58,20 @@ export default function AddEntryPage() {
   const onSubmit = async (data: EnergyReadingFormData) => {
     setIsSubmitting(true);
 
-    if (!validateReadingSequence(data.kwh, lastReading?.kwh ?? null)) {
+    const { previousReading, nextReading, sameDateReading } = getReadingBoundsForDate(
+      readings,
+      data.date
+    );
+    const sequenceValidation = validateReadingSequence(
+      data.kwh,
+      previousReading,
+      nextReading,
+      sameDateReading
+    );
+
+    if (!sequenceValidation.valid) {
       setError('kwh', {
-        message: `Zählerstand muss größer als ${lastReading?.kwh.toFixed(2)} sein`,
+        message: sequenceValidation.message,
       });
       setIsSubmitting(false);
       return;
@@ -99,7 +111,7 @@ export default function AddEntryPage() {
             <div className="rounded-[24px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
               <p className="text-text-secondary text-sm font-medium">Heute</p>
               <p className="text-text mt-2 text-2xl font-semibold tracking-tight">
-                {new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}
+                {formatDisplayDate(new Date())}
               </p>
               <p className="text-text-secondary mt-1 text-sm">Schneller manueller Eintrag</p>
             </div>
@@ -110,9 +122,7 @@ export default function AddEntryPage() {
                 <span className="text-text-secondary ml-2 text-base font-medium">kWh</span>
               </p>
               <p className="text-text-secondary mt-1 text-sm">
-                {lastReading
-                  ? new Date(lastReading.timestamp).toLocaleDateString('de-DE')
-                  : 'Noch keine Daten'}
+                {lastReading ? formatDisplayDate(lastReading.timestamp) : 'Noch keine Daten'}
               </p>
             </div>
           </div>
@@ -241,7 +251,7 @@ export default function AddEntryPage() {
                     <span className="text-text-secondary ml-2 text-base font-medium">kWh</span>
                   </p>
                   <p className="text-text-secondary mt-3 text-sm">
-                    vom {new Date(lastReading.timestamp).toLocaleDateString('de-DE')}
+                    vom {formatDisplayDate(lastReading.timestamp)}
                   </p>
                 </div>
               ) : (
@@ -266,7 +276,8 @@ export default function AddEntryPage() {
               <div className="rounded-[22px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
                 <p className="text-text font-medium">Immer aufsteigend</p>
                 <p className="text-text-secondary mt-1 text-sm">
-                  Der neue Stand muss höher sein als der letzte gespeicherte Wert.
+                  Ein nachträglicher Stand muss sich passend zwischen die benachbarten Werte
+                  einordnen.
                 </p>
               </div>
               <div className="rounded-[22px] bg-white/62 p-4 shadow-sm dark:bg-white/8">

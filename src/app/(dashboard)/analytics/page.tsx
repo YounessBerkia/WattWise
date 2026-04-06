@@ -5,8 +5,9 @@ import { useEnergyStore } from '@/hooks/useEnergyStore';
 import { AreaChart, BarChart } from '@tremor/react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import { PeriodSelector } from '@/components/features/analytics/period-selector';
-import { format, isAfter, subDays, subMonths, subYears } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { isAfter, subDays, subMonths, subYears } from 'date-fns';
+import { formatDisplayDate } from '@/lib/utils';
+import { getConsumptionPointsForPeriod } from '@/lib/calculations';
 import { Activity, BarChart3, CalendarRange } from 'lucide-react';
 
 type Period = 'day' | 'week' | 'month' | 'year';
@@ -33,26 +34,42 @@ export default function AnalyticsPage() {
   const filteredReadings = readings
     .filter((r) => isAfter(new Date(r.timestamp), startDate))
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-
-  const consumptionData = filteredReadings.map((r, i, arr) => ({
-    date: format(new Date(r.timestamp), 'dd.MM.', { locale: de }),
-    Zählerstand: r.kwh,
-    Verbrauch: i > 0 ? r.kwh - arr[i - 1].kwh : 0,
+  const periodConsumptionPoints = getConsumptionPointsForPeriod(readings, startDate);
+  const consumptionData = periodConsumptionPoints.map(({ reading, consumption }) => ({
+    date: formatDisplayDate(reading.timestamp),
+    Zählerstand: reading.kwh,
+    Verbrauch: consumption,
   }));
 
-  const weekdayData = [
-    { day: 'Mo', kwh: 8.2 },
-    { day: 'Di', kwh: 7.8 },
-    { day: 'Mi', kwh: 8.5 },
-    { day: 'Do', kwh: 9.1 },
-    { day: 'Fr', kwh: 8.0 },
-    { day: 'Sa', kwh: 10.2 },
-    { day: 'So', kwh: 11.5 },
-  ];
+  const weekdayOrder = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'] as const;
+  const weekdayIndexMap = [6, 0, 1, 2, 3, 4, 5];
+  const weekdayBuckets = weekdayOrder.map((day) => ({
+    day,
+    total: 0,
+    count: 0,
+  }));
+
+  periodConsumptionPoints.forEach(({ reading, consumption, previousReading }) => {
+    if (!previousReading) {
+      return;
+    }
+
+    const weekdayIndex = weekdayIndexMap[new Date(reading.timestamp).getDay()];
+    const bucket = weekdayBuckets[weekdayIndex];
+
+    bucket.total += consumption;
+    bucket.count += 1;
+  });
+
+  const weekdayData = weekdayBuckets.map((bucket) => ({
+    day: bucket.day,
+    kwh: bucket.count > 0 ? bucket.total / bucket.count : 0,
+  }));
 
   const hasData = filteredReadings.length > 0;
   const totalConsumption = consumptionData.reduce((sum, item) => sum + item.Verbrauch, 0);
-  const averageConsumption = hasData ? totalConsumption / consumptionData.length : 0;
+  const intervalCount = periodConsumptionPoints.filter((point) => point.previousReading).length;
+  const averageConsumption = intervalCount > 0 ? totalConsumption / intervalCount : 0;
   const strongestWeekday = weekdayData.reduce((max, day) => (day.kwh > max.kwh ? day : max));
 
   return (

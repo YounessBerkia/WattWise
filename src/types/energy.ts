@@ -38,7 +38,7 @@ export interface Contract {
 export interface Settings {
   currency: 'EUR';
   darkMode: boolean;
-  dateFormat: 'EU' | 'US' | 'ISO'; // DD.MM.YYYY | MM/DD/YYYY | YYYY-MM-DD
+  dateFormat: 'EU' | 'US' | 'ISO'; // DD-MM-YYYY | MM/DD/YYYY | YYYY-MM-DD
   language: 'de' | 'en';
 }
 

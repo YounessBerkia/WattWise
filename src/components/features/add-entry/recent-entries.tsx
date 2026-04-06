@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, Button } from '@/components/ui';
+import { formatDisplayDate } from '@/lib/utils';
 import type { EnergyReading } from '@/types';
 import { Pencil, Trash2 } from 'lucide-react';
 
@@ -51,7 +52,7 @@ export function RecentEntries({ readings, onEdit, onDelete }: RecentEntriesProps
                   {reading.kwh.toFixed(2)} kWh
                 </p>
                 <p className="text-sm text-text-secondary">
-                  {new Date(reading.timestamp).toLocaleDateString('de-DE')}
+                  {formatDisplayDate(reading.timestamp)}
                 </p>
                 {reading.photoBase64 && (
                   <span className="text-xs text-text-secondary">📷 Foto</span>

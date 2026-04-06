@@ -3,11 +3,20 @@
 import { useState } from 'react';
 import { useEnergyStore } from '@/hooks/useEnergyStore';
 import { Card, CardHeader, CardTitle, CardContent, Button } from '@/components/ui';
-import { ArrowUpDown, Download, History, TableProperties } from 'lucide-react';
+import { getReadingConsumptionPoints, sortReadingsByTimestamp } from '@/lib/calculations';
+import { formatDisplayDate } from '@/lib/utils';
+import { ArrowUpDown, Download, History, TableProperties, Trash2 } from 'lucide-react';
 
 export default function HistoryPage() {
-  const { readings } = useEnergyStore();
+  const { readings, deleteReading } = useEnergyStore();
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const chronological = sortReadingsByTimestamp(readings);
+  const consumptionPoints = getReadingConsumptionPoints(readings);
+
+  const consumptionById = new Map(
+    consumptionPoints.map(({ reading, consumption }) => [reading.id, consumption])
+  );
 
   const sorted = [...readings].sort((a, b) => {
     const comparison = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
@@ -17,8 +26,8 @@ export default function HistoryPage() {
   const handleExportCSV = () => {
     const csv = [
       'Datum,Zählerstand (kWh),Verbrauch (kWh)',
-      ...sorted.map((r, i) => {
-        const consumption = i > 0 ? r.kwh - sorted[i - 1].kwh : 0;
+      ...chronological.map((r) => {
+        const consumption = consumptionById.get(r.id) ?? 0;
         return `${r.timestamp},${r.kwh},${consumption.toFixed(2)}`;
       }),
     ].join('\n');
@@ -30,6 +39,16 @@ export default function HistoryPage() {
     link.download = `wattwise-verlauf-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleDelete = (readingId: string) => {
+    if (deleteConfirmId === readingId) {
+      deleteReading(readingId);
+      setDeleteConfirmId(null);
+      return;
+    }
+
+    setDeleteConfirmId(readingId);
   };
 
   return (
@@ -109,21 +128,22 @@ export default function HistoryPage() {
           ) : (
             <div className="space-y-4">
               <div className="hidden rounded-[28px] bg-white/62 p-4 shadow-sm lg:block dark:bg-white/8">
-                <div className="text-text-secondary grid grid-cols-[1.3fr_1fr_1fr] gap-4 px-4 py-2 text-sm font-medium">
+                <div className="text-text-secondary grid grid-cols-[1.3fr_1fr_1fr_auto] gap-4 px-4 py-2 text-sm font-medium">
                   <span>Datum</span>
                   <span className="text-right">Zählerstand</span>
                   <span className="text-right">Verbrauch</span>
+                  <span className="text-right">Aktion</span>
                 </div>
                 <div className="space-y-2">
-                  {sorted.map((reading, i) => {
-                    const consumption = i > 0 ? reading.kwh - sorted[i - 1].kwh : 0;
+                  {sorted.map((reading) => {
+                    const consumption = consumptionById.get(reading.id) ?? 0;
                     return (
                       <div
                         key={reading.id}
-                        className="bg-background/75 hover:bg-background dark:bg-background/30 grid grid-cols-[1.3fr_1fr_1fr] gap-4 rounded-[22px] px-4 py-4 transition-colors duration-300"
+                        className="bg-background/75 hover:bg-background dark:bg-background/30 grid grid-cols-[1.3fr_1fr_1fr_auto] gap-4 rounded-[22px] px-4 py-4 transition-colors duration-300"
                       >
                         <span className="text-text font-medium">
-                          {new Date(reading.timestamp).toLocaleDateString('de-DE')}
+                          {formatDisplayDate(reading.timestamp)}
                         </span>
                         <span className="text-text text-right font-mono">
                           {reading.kwh.toFixed(2)} kWh
@@ -131,6 +151,18 @@ export default function HistoryPage() {
                         <span className="text-text text-right font-mono">
                           {consumption.toFixed(2)} kWh
                         </span>
+                        <div className="flex justify-end">
+                          <Button
+                            type="button"
+                            variant={deleteConfirmId === reading.id ? 'danger' : 'ghost'}
+                            size="sm"
+                            onClick={() => handleDelete(reading.id)}
+                            className="min-w-[118px]"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            {deleteConfirmId === reading.id ? 'Wirklich löschen?' : 'Löschen'}
+                          </Button>
+                        </div>
                       </div>
                     );
                   })}
@@ -138,8 +170,8 @@ export default function HistoryPage() {
               </div>
 
               <div className="space-y-3 lg:hidden">
-                {sorted.map((reading, i) => {
-                  const consumption = i > 0 ? reading.kwh - sorted[i - 1].kwh : 0;
+                {sorted.map((reading) => {
+                  const consumption = consumptionById.get(reading.id) ?? 0;
                   return (
                     <div
                       key={reading.id}
@@ -149,7 +181,7 @@ export default function HistoryPage() {
                         <div>
                           <p className="text-text-secondary text-sm">Messdatum</p>
                           <p className="text-text mt-1 font-medium">
-                            {new Date(reading.timestamp).toLocaleDateString('de-DE')}
+                            {formatDisplayDate(reading.timestamp)}
                           </p>
                         </div>
                         <span className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-2xl">
@@ -171,6 +203,17 @@ export default function HistoryPage() {
                           <p className="text-text mt-2 font-mono">{consumption.toFixed(2)} kWh</p>
                         </div>
                       </div>
+
+                      <Button
+                        type="button"
+                        variant={deleteConfirmId === reading.id ? 'danger' : 'secondary'}
+                        size="sm"
+                        onClick={() => handleDelete(reading.id)}
+                        className="mt-4 w-full"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {deleteConfirmId === reading.id ? 'Wirklich löschen?' : 'Eintrag löschen'}
+                      </Button>
                     </div>
                   );
                 })}

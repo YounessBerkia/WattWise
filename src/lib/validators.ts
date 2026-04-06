@@ -7,6 +7,8 @@
 
 import { z } from 'zod';
 
+import type { EnergyReading } from '@/types';
+
 /**
  * Energy Reading Form Schema
  * Validates individual meter reading submissions
@@ -120,19 +122,64 @@ export type WattWiseDataValidated = z.infer<typeof wattWiseDataSchema>;
  */
 export function validateImportData(jsonData: string): WattWiseDataValidated {
   const parsed = JSON.parse(jsonData);
-  return wattWiseDataSchema.parse(parsed);
+  const validated = wattWiseDataSchema.parse(parsed);
+  const sortedReadings = [...validated.readings].sort((left, right) =>
+    left.timestamp.localeCompare(right.timestamp)
+  );
+
+  for (let index = 1; index < sortedReadings.length; index += 1) {
+    const previousReading = sortedReadings[index - 1];
+    const currentReading = sortedReadings[index];
+
+    if (currentReading.timestamp === previousReading.timestamp) {
+      throw new Error('Import enthält mehrere Einträge für dasselbe Datum');
+    }
+
+    if (currentReading.kwh < previousReading.kwh) {
+      throw new Error('Import enthält absteigende Zählerstände und kann nicht übernommen werden');
+    }
+  }
+
+  return validated;
 }
 
 /**
  * Checks if a new reading value is valid compared to the last reading
  * @returns true if new reading is greater than last reading
  */
+export interface ReadingSequenceValidationResult {
+  valid: boolean;
+  message?: string;
+}
+
 export function validateReadingSequence(
   newReading: number,
-  lastReading: number | null
-): boolean {
-  if (lastReading === null) return true;
-  return newReading > lastReading;
+  previousReading: EnergyReading | null,
+  nextReading: EnergyReading | null,
+  sameDateReading: EnergyReading | null
+): ReadingSequenceValidationResult {
+  if (sameDateReading) {
+    return {
+      valid: false,
+      message: `Für das Datum ${sameDateReading.timestamp} existiert bereits ein Eintrag`,
+    };
+  }
+
+  if (previousReading && newReading <= previousReading.kwh) {
+    return {
+      valid: false,
+      message: `Zählerstand muss größer als ${previousReading.kwh.toFixed(2)} sein`,
+    };
+  }
+
+  if (nextReading && newReading >= nextReading.kwh) {
+    return {
+      valid: false,
+      message: `Zählerstand muss kleiner als ${nextReading.kwh.toFixed(2)} sein`,
+    };
+  }
+
+  return { valid: true };
 }
 
 /**

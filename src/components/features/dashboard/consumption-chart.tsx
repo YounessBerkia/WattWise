@@ -2,9 +2,8 @@
 
 import { AreaChart } from '@tremor/react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { formatDisplayDate } from '@/lib/utils';
 import type { EnergyReading } from '@/types';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Activity, ArrowUpRight } from 'lucide-react';
 
@@ -21,7 +20,7 @@ export function ConsumptionChart({ readings }: ConsumptionChartProps) {
   const chartData = readings
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
     .map((r) => ({
-      date: format(new Date(r.timestamp), 'dd.MM.', { locale: de }),
+      date: formatDisplayDate(r.timestamp),
       Zählerstand: r.kwh,
     }));
 
