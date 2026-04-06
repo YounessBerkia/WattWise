@@ -64,7 +64,7 @@ export function KPICard({
           {trend.direction === 'down' && <TrendingDown className="h-4 w-4" />}
           {trend.direction === 'neutral' && <Minus className="h-4 w-4" />}
           <span>
-            {trend.percentage}% {trendLabel || 'vs. letzten Monat'}
+            {trend.percentage.toFixed(1)}% {trendLabel || 'vs. letzten Monat'}
           </span>
         </div>
       )}

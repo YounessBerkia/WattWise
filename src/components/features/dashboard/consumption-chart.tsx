@@ -86,14 +86,37 @@ export function ConsumptionChart({ readings }: ConsumptionChartProps) {
         </div>
 
         <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
-          <div className="from-primary/14 via-info/10 pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-br to-transparent" />
+          <div className="from-primary/10 via-info/6 pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-br to-transparent" />
+          {/* SVG gradient definition for the area fill */}
+          <svg width="0" height="0" className="absolute" aria-hidden="true">
+            <defs>
+              <linearGradient id="ww-trend-gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0072B2" stopOpacity="0.38" />
+                <stop offset="75%" stopColor="#0072B2" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="#0072B2" stopOpacity="0.01" />
+              </linearGradient>
+            </defs>
+          </svg>
           <AreaChart
-            className="[&_.recharts-cartesian-axis-tick-value]:font-size-[12px] [&_.recharts-curve.recharts-area-area]:fill-opacity-90 [&_.recharts-layer.recharts-area-dots_circle]:stroke-width-2 relative h-80 [&_.recharts-cartesian-axis-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)] [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_60%,transparent)] [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent [&_.recharts-layer.recharts-area-dots_circle]:fill-white [&_.recharts-layer.recharts-area-dots_circle]:stroke-[var(--color-primary)]"
+            className="relative h-80
+              [&_.recharts-cartesian-axis-line]:stroke-transparent
+              [&_.recharts-cartesian-axis-tick-line]:stroke-transparent
+              [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)]
+              [&_.recharts-cartesian-axis-tick-value]:text-[11px]
+              [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_50%,transparent)]
+              [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent
+              [&_.recharts-area-area]:[fill:url(#ww-trend-gradient)]
+              [&_.recharts-area-curve]:stroke-[#0072B2]
+              [&_.recharts-area-curve]:[stroke-width:2.5px]
+              [&_.recharts-layer.recharts-area-dots_circle]:fill-white
+              [&_.recharts-layer.recharts-area-dots_circle]:stroke-[#0072B2]
+              [&_.recharts-layer.recharts-area-dots_circle]:[stroke-width:2px]
+              [&_.recharts-layer.recharts-area-dots_circle]:[r:4px]"
             data={chartData}
             index="date"
             categories={['Zählerstand']}
             colors={['blue']}
-            valueFormatter={(value) => `${value.toFixed(0)} kWh`}
+            valueFormatter={(value) => `${value.toFixed(2)} kWh`}
             showLegend={false}
             showGridLines={true}
           />

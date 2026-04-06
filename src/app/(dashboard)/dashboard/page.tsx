@@ -14,7 +14,7 @@ import {
   calculateTrend,
   getReadingConsumptionPoints,
 } from '@/lib/calculations';
-import { formatDisplayDate } from '@/lib/utils';
+import { formatDisplayDate, formatKwh } from '@/lib/utils';
 
 // Lazy load chart component for performance
 const ConsumptionChart = dynamic(
@@ -87,11 +87,11 @@ export default function DashboardPage() {
             <div className="bg-primary rounded-[24px] p-4 text-white shadow-lg">
               <p className="text-sm font-medium text-white/78">Jahresziel im Blick</p>
               <p className="mt-2 text-3xl font-semibold tracking-tight">
-                {yearlyProjection}
+                {formatKwh(yearlyProjection)}
                 <span className="ml-2 text-base font-medium text-white/70">kWh</span>
               </p>
               <p className="mt-1 text-sm text-white/78">
-                {yearlyTrend.percentage}% vs. Vertragsziel
+                {yearlyTrend.percentage.toFixed(1)}% vs. Vertragsziel
               </p>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
         <KPICard
           className="[--motion-delay:100ms]"
           label="Aktueller Verbrauch"
-          value={currentConsumption.toFixed(0)}
+          value={formatKwh(currentConsumption)}
           unit="kWh"
           icon={Zap}
           trend={consumptionTrend}
@@ -130,7 +130,7 @@ export default function DashboardPage() {
         <KPICard
           className="[--motion-delay:150ms]"
           label="Ø pro Tag"
-          value={dailyAvg.toFixed(1)}
+          value={formatKwh(dailyAvg)}
           unit="kWh/Tag"
           icon={Calendar}
           trend={dailyTrend}
@@ -139,7 +139,7 @@ export default function DashboardPage() {
         <KPICard
           className="[--motion-delay:200ms]"
           label="Prognose Monat"
-          value={monthlyProjection}
+          value={formatKwh(monthlyProjection)}
           unit="kWh"
           icon={TrendingUp}
         />
@@ -147,7 +147,7 @@ export default function DashboardPage() {
         <KPICard
           className="[--motion-delay:250ms]"
           label="Prognose Jahr"
-          value={yearlyProjection}
+          value={formatKwh(yearlyProjection)}
           unit="kWh"
           icon={Target}
           trend={yearlyTrend}
@@ -196,11 +196,11 @@ export default function DashboardPage() {
                     <div className="bg-primary rounded-3xl px-5 py-4 text-white shadow-lg">
                       <p className="text-sm font-medium text-white/78">Jährliche Projektion</p>
                       <p className="mt-3 text-3xl font-semibold tracking-tight">
-                        {yearlyProjection}
+                        {formatKwh(yearlyProjection)}
                         <span className="ml-2 text-base font-medium text-white/70">kWh</span>
                       </p>
                       <p className="mt-2 text-sm text-white/78">
-                        {yearlyTrend.percentage}% vs. Vertragsziel
+                        {yearlyTrend.percentage.toFixed(1)}% vs. Vertragsziel
                       </p>
                     </div>
                   </div>
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                         Monat
                       </p>
                       <p className="text-text mt-2 text-xl font-semibold">
-                        {monthlyProjection} kWh
+                        {formatKwh(monthlyProjection)} kWh
                       </p>
                     </div>
                     <div className="bg-background/70 dark:bg-background/30 rounded-2xl px-4 py-3">
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                         Ø pro Tag
                       </p>
                       <p className="text-text mt-2 text-xl font-semibold">
-                        {dailyAvg.toFixed(1)} kWh
+                        {formatKwh(dailyAvg)} kWh
                       </p>
                     </div>
                     <div className="bg-background/70 dark:bg-background/30 rounded-2xl px-4 py-3">
@@ -227,7 +227,7 @@ export default function DashboardPage() {
                         Aktueller Verbrauch
                       </p>
                       <p className="text-text mt-2 text-xl font-semibold">
-                        {currentConsumption.toFixed(0)} kWh
+                        {formatKwh(currentConsumption)} kWh
                       </p>
                     </div>
                   </div>

@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
             </span>
             <div>
               <p className="text-text-secondary text-sm">Durchschnitt</p>
-              <p className="text-text text-lg font-semibold">{averageConsumption.toFixed(1)} kWh</p>
+              <p className="text-text text-lg font-semibold">{averageConsumption.toFixed(2)} kWh</p>
             </div>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function AnalyticsPage() {
                       Summe Zeitraum
                     </p>
                     <p className="text-text mt-2 text-lg font-semibold">
-                      {totalConsumption.toFixed(1)} kWh
+                      {totalConsumption.toFixed(2)} kWh
                     </p>
                   </div>
                   <div className="rounded-[22px] bg-white/62 px-4 py-4 shadow-sm dark:bg-white/8">
@@ -172,7 +172,7 @@ export default function AnalyticsPage() {
                       Letzter Verbrauch
                     </p>
                     <p className="text-text mt-2 text-lg font-semibold">
-                      {consumptionData.at(-1)?.Verbrauch.toFixed(1) ?? '0.0'} kWh
+                      {consumptionData.at(-1)?.Verbrauch.toFixed(2) ?? '0.00'} kWh
                     </p>
                   </div>
                   <div className="bg-primary rounded-[22px] px-4 py-4 text-white shadow-lg">
@@ -180,20 +180,44 @@ export default function AnalyticsPage() {
                       Höchster Ausschlag
                     </p>
                     <p className="mt-2 text-lg font-semibold">
-                      {Math.max(...consumptionData.map((item) => item.Verbrauch)).toFixed(1)} kWh
+                      {Math.max(...consumptionData.map((item) => item.Verbrauch)).toFixed(2)} kWh
                     </p>
                   </div>
                 </div>
 
                 <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
-                  <div className="from-primary/14 via-info/10 pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-br to-transparent" />
+                  <div className="from-primary/10 via-info/6 pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-br to-transparent" />
+                  {/* SVG gradient for analytics consumption area */}
+                  <svg width="0" height="0" className="absolute" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="ww-consumption-gradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#0072B2" stopOpacity="0.38" />
+                        <stop offset="75%" stopColor="#0072B2" stopOpacity="0.08" />
+                        <stop offset="100%" stopColor="#0072B2" stopOpacity="0.01" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
                   <AreaChart
-                    className="[&_.recharts-cartesian-axis-tick-value]:font-size-[12px] [&_.recharts-curve.recharts-area-area]:fill-opacity-90 [&_.recharts-layer.recharts-area-dots_circle]:stroke-width-2 relative h-80 [&_.recharts-cartesian-axis-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)] [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_60%,transparent)] [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent [&_.recharts-default-legend]:!mt-2 [&_.recharts-layer.recharts-area-dots_circle]:fill-white [&_.recharts-layer.recharts-area-dots_circle]:stroke-[var(--color-primary)]"
+                    className="relative h-80
+                      [&_.recharts-cartesian-axis-line]:stroke-transparent
+                      [&_.recharts-cartesian-axis-tick-line]:stroke-transparent
+                      [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)]
+                      [&_.recharts-cartesian-axis-tick-value]:text-[11px]
+                      [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_50%,transparent)]
+                      [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent
+                      [&_.recharts-area-area]:[fill:url(#ww-consumption-gradient)]
+                      [&_.recharts-area-curve]:stroke-[#0072B2]
+                      [&_.recharts-area-curve]:[stroke-width:2.5px]
+                      [&_.recharts-layer.recharts-area-dots_circle]:fill-white
+                      [&_.recharts-layer.recharts-area-dots_circle]:stroke-[#0072B2]
+                      [&_.recharts-layer.recharts-area-dots_circle]:[stroke-width:2px]
+                      [&_.recharts-layer.recharts-area-dots_circle]:[r:4px]
+                      [&_.recharts-default-legend]:!mt-2"
                     data={consumptionData}
                     index="date"
                     categories={['Verbrauch']}
                     colors={['blue']}
-                    valueFormatter={(value) => `${value.toFixed(1)} kWh`}
+                    valueFormatter={(value) => `${value.toFixed(2)} kWh`}
                     showLegend={true}
                     showGridLines={true}
                   />
@@ -234,19 +258,27 @@ export default function AnalyticsPage() {
                 Höchster Wochentag
               </p>
               <p className="text-text mt-2 text-lg font-semibold">
-                {strongestWeekday.day} · {strongestWeekday.kwh.toFixed(1)} kWh
+                {strongestWeekday.day} · {strongestWeekday.kwh.toFixed(2)} kWh
               </p>
             </div>
 
             <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
-              <div className="from-secondary/12 via-primary/6 pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-br to-transparent" />
+              <div className="from-secondary/10 via-primary/5 pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-br to-transparent" />
               <BarChart
-                className="[&_.recharts-cartesian-axis-tick-value]:font-size-[12px] relative h-72 [&_.recharts-bar-rectangle]:opacity-95 [&_.recharts-cartesian-axis-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-line]:stroke-transparent [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)] [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_58%,transparent)] [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent"
+                className="relative h-72
+                  [&_.recharts-cartesian-axis-line]:stroke-transparent
+                  [&_.recharts-cartesian-axis-tick-line]:stroke-transparent
+                  [&_.recharts-cartesian-axis-tick-value]:fill-[var(--color-text-secondary)]
+                  [&_.recharts-cartesian-axis-tick-value]:text-[11px]
+                  [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_50%,transparent)]
+                  [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent
+                  [&_.recharts-rectangle]:[rx:6px]
+                  [&_.recharts-rectangle]:[ry:6px]"
                 data={weekdayData}
                 index="day"
                 categories={['kwh']}
                 colors={['emerald']}
-                valueFormatter={(value) => `${value.toFixed(1)} kWh`}
+                valueFormatter={(value) => `${value.toFixed(2)} kWh`}
                 showLegend={false}
                 showGridLines={true}
               />
