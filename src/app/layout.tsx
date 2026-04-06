@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   title: 'WattWise — Energieverbrauch im Blick',
   description:
     'Verfolge deinen Stromverbrauch, behalte Kosten im Blick und erkenne Einsparpotenziale mit WattWise.',
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({
