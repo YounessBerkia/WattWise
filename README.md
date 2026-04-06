@@ -5,6 +5,10 @@
 <h1 align="center">WattWise</h1>
 
 <p align="center">
+  A clean energy dashboard for tracking meter readings, understanding consumption, and staying ahead of your annual electricity bill.
+</p>
+
+<p align="center">
   <img src="assets/Logo.png" alt="WattWise Logo" width="64" height="64">
   <br><br>
   <a href="https://github.com/YounessBerkia/WattWise/blob/main/LICENSE">
@@ -17,6 +21,29 @@
     <img src="https://img.shields.io/badge/Powered%20by-React-61DAFB?style=flat&logo=react" alt="Powered by React">
   </a>
 </p>
+
+---
+
+## Preview
+
+<table align="center">
+  <tr>
+    <td width="68%" valign="top">
+      <img src="assets/web-preview.png" alt="WattWise Web Dashboard" width="100%">
+    </td>
+    <td width="32%" valign="top" align="center">
+      <img src="assets/mobile-preview.gif" alt="WattWise Mobile Preview" width="280">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <sub>Desktop dashboard view</sub>
+    </td>
+    <td align="center">
+      <sub>Mobile app preview</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
