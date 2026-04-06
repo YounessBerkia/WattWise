@@ -22,13 +22,13 @@
 
 ## What is WattWise?
 
-I'll be honest—I got tired of not knowing where my electricity was actually going. In Germany, we don't get monthly bills anyway. Instead, we pay a fixed "Abschlag" every month, and only at the end of the year do we find out if we've been overpaying (hello, refund!) or underpaying (hello, surprise bill!). Without tracking your actual consumption, you're basically flying blind until the yearly settlement arrives.
+I got tired of not knowing where my electricity was actually going. In Germany, we don't get monthly bills anyway. Instead, we pay a fixed "Abschlag" every month, and only at the end of the year do we find out if we've been overpaying or underpaying. Without tracking your actual consumption, you're basically flying blind until the yearly settlement arrives.
 
-WattWise is an energy tracking dashboard designed for households that want more than just a number on a piece of paper. You enter your meter readings, and it does the heavy lifting: analyzing consumption over time, projecting costs based on your tariff, and giving you real insight into your energy usage—so you're never caught off guard by that annual Abrechnung.
+WattWise is an energy tracking dashboard designed for households that want more than just a number on a piece of paper. You enter your meter readings, and it does the heavy lifting: analyzing consumption over time, projecting costs based on your tariff, and giving you real insight into your energy usage, so you're never caught off guard by that annual Abrechnung.
 
 **Live Demo**: Check out the deployed version at [https://watt-wise-mu.vercel.app/dashboard](https://watt-wise-mu.vercel.app/dashboard)
 
-It's not a smart home integration (though that would be cool). It's for people who still read their meter manually and want to make sense of the data.
+It's not a smart home integration. It's for people who still read their meter manually and want to make sense of the data.
 
 ---
 
