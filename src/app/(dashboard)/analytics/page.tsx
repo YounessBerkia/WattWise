@@ -185,8 +185,7 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
 
-                <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
-                  <div className="from-primary/10 via-info/6 pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-br to-transparent" />
+                <div className="relative overflow-hidden rounded-[26px] bg-white/72 p-4 shadow-sm dark:bg-white/8">
                   {/* SVG gradient for analytics consumption area */}
                   <svg width="0" height="0" className="absolute" aria-hidden="true">
                     <defs>
@@ -262,8 +261,7 @@ export default function AnalyticsPage() {
               </p>
             </div>
 
-            <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
-              <div className="from-secondary/10 via-primary/5 pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-br to-transparent" />
+            <div className="relative overflow-hidden rounded-[26px] bg-white/72 p-4 shadow-sm dark:bg-white/8">
               <BarChart
                 className="relative h-72
                   [&_.recharts-cartesian-axis-line]:stroke-transparent
@@ -272,12 +270,17 @@ export default function AnalyticsPage() {
                   [&_.recharts-cartesian-axis-tick-value]:text-[11px]
                   [&_.recharts-cartesian-grid-horizontal_line]:stroke-[color:color-mix(in_oklab,var(--color-border)_50%,transparent)]
                   [&_.recharts-cartesian-grid-vertical_line]:stroke-transparent
-                  [&_.recharts-rectangle]:[rx:6px]
-                  [&_.recharts-rectangle]:[ry:6px]"
+                  [&_.recharts-rectangle]:[rx:10px]
+                  [&_.recharts-rectangle]:[ry:10px]
+                  [&_.recharts-bar-rectangle_path]:fill-[#0072B2]
+                  [&_.recharts-bar-rectangle_path]:opacity-95
+                  [&_.recharts-bar-rectangle_path]:stroke-[#1E88D8]
+                  [&_.recharts-bar-rectangle_path]:[stroke-width:1.5px]
+                  [&_.recharts-bar-background-rectangle]:fill-[rgba(0,114,178,0.08)]"
                 data={weekdayData}
                 index="day"
                 categories={['kwh']}
-                colors={['emerald']}
+                colors={['blue']}
                 valueFormatter={(value) => `${value.toFixed(2)} kWh`}
                 showLegend={false}
                 showGridLines={true}

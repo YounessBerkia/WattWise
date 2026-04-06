@@ -17,15 +17,16 @@ export const APP_VERSION = '1.0.0';
  * LocalStorage key and schema version
  */
 export const STORAGE_KEY = 'wattwise-storage';
-export const STORAGE_VERSION = 1;
+export const STORAGE_VERSION = 2;
 
 /**
  * Default contract values (German average 2026)
  */
 export const DEFAULT_CONTRACT: Contract = {
-  pricePerKwh: 0.32, // EUR per kWh (avg. 2026)
-  baseCostMonthly: 12.0, // Monthly base fee
+  pricePerKwh: 0.3305, // EUR per kWh
+  baseCostYearly: 126.27, // Fixed yearly base fee
   expectedYearlyUsage: 2000, // kWh per year
+  monthlyAdvancePayment: 45.11, // EUR per month
 };
 
 /**

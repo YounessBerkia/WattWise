@@ -85,8 +85,7 @@ export function ConsumptionChart({ readings }: ConsumptionChartProps) {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[26px] bg-white/62 p-4 shadow-sm dark:bg-white/8">
-          <div className="from-primary/10 via-info/6 pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-br to-transparent" />
+        <div className="relative overflow-hidden rounded-[26px] bg-white/72 p-4 shadow-sm dark:bg-white/8">
           {/* SVG gradient definition for the area fill */}
           <svg width="0" height="0" className="absolute" aria-hidden="true">
             <defs>

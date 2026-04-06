@@ -25,8 +25,9 @@ export interface EnergyReading {
  */
 export interface Contract {
   pricePerKwh: number; // Price per kWh in EUR (e.g., 0.32)
-  baseCostMonthly: number; // Base monthly cost in EUR (e.g., 12.00)
+  baseCostYearly: number; // Fixed yearly base fee in EUR
   expectedYearlyUsage: number; // Expected annual consumption in kWh (e.g., 2000)
+  monthlyAdvancePayment: number; // Monthly advance payment / Abschlag
   provider?: string; // Optional: energy provider name
   contractEndDate?: string; // Optional: contract expiration (ISO date)
 }

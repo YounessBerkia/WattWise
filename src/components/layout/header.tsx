@@ -1,3 +1,7 @@
+import Image from 'next/image';
+
+import Logo from '../../../assets/Logo.png';
+
 /**
  * Header component with logo
  */
@@ -6,8 +10,8 @@ export function Header() {
     <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6 lg:px-8">
       <div className="glass-panel panel-glow flex h-[72px] w-full items-center justify-between rounded-[28px] !bg-white/28 px-5 backdrop-blur-3xl sm:px-6 dark:!bg-black/18">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/12 text-primary flex h-10 w-10 items-center justify-center rounded-2xl text-lg shadow-sm">
-            <span aria-hidden="true">⚡</span>
+          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white/72 shadow-sm dark:bg-white/10">
+            <Image src={Logo} alt="WattWise Logo" className="h-8 w-8 object-contain" priority />
           </div>
           <div>
             <p className="text-text-secondary text-sm font-medium tracking-[0.18em] uppercase">

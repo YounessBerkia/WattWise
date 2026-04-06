@@ -1,9 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutDashboard, Plus, BarChart3, Euro, History, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Logo from '../../../assets/Logo.png';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -26,10 +28,16 @@ export function Sidebar() {
         className="glass-panel panel-glow flex h-full flex-col rounded-[30px] p-4"
         aria-label="Hauptnavigation"
       >
-        <div className="mb-6 px-2 pt-2">
-          <p className="text-text-secondary text-xs font-semibold tracking-[0.24em] uppercase">
-            Navigation
-          </p>
+        <div className="mb-6 flex items-center gap-3 px-2 pt-2">
+          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white/72 shadow-sm dark:bg-white/10">
+            <Image src={Logo} alt="WattWise Logo" className="h-8 w-8 object-contain" priority />
+          </div>
+          <div>
+            <p className="text-text-secondary text-xs font-semibold tracking-[0.24em] uppercase">
+              WattWise
+            </p>
+            <p className="text-text text-sm font-medium">Navigation</p>
+          </div>
         </div>
 
         <div className="space-y-1.5">

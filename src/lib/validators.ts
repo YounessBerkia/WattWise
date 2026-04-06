@@ -61,10 +61,10 @@ export const contractSchema = z.object({
     .max(10, 'Unrealistischer Preis (max. 10 €/kWh)')
     .multipleOf(0.01, 'Maximal 2 Nachkommastellen'),
 
-  baseCostMonthly: z
+  baseCostYearly: z
     .number()
     .min(0, 'Grundpreis muss positiv sein')
-    .max(1000, 'Unrealistischer Grundpreis')
+    .max(10000, 'Unrealistischer Grundpreis')
     .multipleOf(0.01, 'Maximal 2 Nachkommastellen'),
 
   expectedYearlyUsage: z
@@ -72,6 +72,12 @@ export const contractSchema = z.object({
     .int('Ganzzahl erforderlich')
     .min(100, 'Mindestens 100 kWh/Jahr')
     .max(100000, 'Maximal 100.000 kWh/Jahr'),
+
+  monthlyAdvancePayment: z
+    .number()
+    .min(0, 'Abschlag muss positiv sein')
+    .max(2000, 'Unrealistischer Abschlag')
+    .multipleOf(0.01, 'Maximal 2 Nachkommastellen'),
 });
 
 export type ContractFormData = z.infer<typeof contractSchema>;
@@ -104,7 +110,9 @@ export const wattWiseDataSchema = z.object({
       photoBase64: z.string().optional(),
     })
   ),
-  contract: contractSchema,
+  contract: contractSchema.extend({
+    baseCostMonthly: z.number().optional(),
+  }),
   settings: settingsSchema.extend({
     currency: z.literal('EUR'),
   }),

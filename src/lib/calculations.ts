@@ -124,9 +124,17 @@ export function calculateTotalCost(
   const safeConsumption = Number.isFinite(consumptionKwh) ? Math.max(consumptionKwh, 0) : 0;
   const safeDays = Number.isFinite(days) ? Math.max(days, 0) : 0;
   const variableCost = safeConsumption * contract.pricePerKwh;
-  const fixedCost = (contract.baseCostMonthly / 30) * safeDays;
+  const fixedCost = (contract.baseCostYearly / 365) * safeDays;
 
   return variableCost + fixedCost;
+}
+
+export function calculateYearlyAdvancePayment(contract: Contract): number {
+  return contract.monthlyAdvancePayment * 12;
+}
+
+export function calculateMaximumRefund(contract: Contract): number {
+  return Math.max(calculateYearlyAdvancePayment(contract) - contract.baseCostYearly, 0);
 }
 
 /**

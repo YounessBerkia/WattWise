@@ -9,6 +9,10 @@ import {
 } from '@/lib/constants';
 import type { Contract, EnergyReading, Settings, WattWiseData } from '@/types';
 
+type LegacyContract = Partial<Contract> & {
+  baseCostMonthly?: number;
+};
+
 export interface EnergyStore extends WattWiseData {
   addReading: (newReading: EnergyReading) => void;
   updateReading: (
@@ -67,6 +71,22 @@ const createHydrationFallback = (): EnergyStore => {
   };
 };
 
+const normaliseContract = (contractSnapshot?: LegacyContract): Contract => {
+  const legacyMonthlyBaseCost = contractSnapshot?.baseCostMonthly;
+
+  return {
+    ...DEFAULT_CONTRACT,
+    ...contractSnapshot,
+    baseCostYearly:
+      contractSnapshot?.baseCostYearly ??
+      (typeof legacyMonthlyBaseCost === 'number'
+        ? legacyMonthlyBaseCost * 12
+        : DEFAULT_CONTRACT.baseCostYearly),
+    monthlyAdvancePayment:
+      contractSnapshot?.monthlyAdvancePayment ?? DEFAULT_CONTRACT.monthlyAdvancePayment,
+  };
+};
+
 const stampLastModified = (currentData: WattWiseData): WattWiseData => {
   return {
     ...currentData,
@@ -87,10 +107,7 @@ const normaliseImportedSnapshot = (
   return {
     version: STORAGE_VERSION,
     readings: sortReadingsByTimestamp(importedSnapshot.readings ?? []),
-    contract: {
-      ...DEFAULT_CONTRACT,
-      ...importedSnapshot.contract,
-    },
+    contract: normaliseContract(importedSnapshot.contract as LegacyContract),
     settings: {
       ...DEFAULT_SETTINGS,
       ...importedSnapshot.settings,
@@ -213,6 +230,28 @@ export const useEnergyStore = create<EnergyStore>()(
       name: STORAGE_KEY,
       version: STORAGE_VERSION,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState) => {
+        const state = persistedState as Partial<WattWiseData> | undefined;
+
+        if (!state) {
+          return createInitialData();
+        }
+
+        return {
+          ...createInitialData(),
+          ...state,
+          readings: sortReadingsByTimestamp(state.readings ?? []),
+          contract: normaliseContract(state.contract as LegacyContract),
+          settings: {
+            ...DEFAULT_SETTINGS,
+            ...state.settings,
+          },
+          metadata: {
+            createdAt: state.metadata?.createdAt ?? buildTimestamp(),
+            lastModified: state.metadata?.lastModified ?? buildTimestamp(),
+          },
+        };
+      },
     }
   )
 );
